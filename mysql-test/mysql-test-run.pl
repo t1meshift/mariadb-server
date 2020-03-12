@@ -2454,6 +2454,7 @@ sub environment_setup {
   $ENV{'DEFAULT_MASTER_PORT'}= $mysqld_variables{'port'};
   $ENV{'MYSQL_TMP_DIR'}=      $opt_tmpdir;
   $ENV{'MYSQLTEST_VARDIR'}=   $opt_vardir;
+  $ENV{'MYSQLTEST_REAL_VARDIR'}= -l $opt_vardir ? readlink($opt_vardir) : $opt_vardir;
   $ENV{'MYSQL_BINDIR'}=       $bindir;
   $ENV{'MYSQL_SHAREDIR'}=     $path_language;
   $ENV{'MYSQL_CHARSETSDIR'}=  $path_charsetsdir;
