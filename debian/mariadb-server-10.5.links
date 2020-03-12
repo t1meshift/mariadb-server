@@ -6,7 +6,6 @@ usr/bin/mariadbd-multi usr/bin/mysqld_multi
 usr/bin/mariadbd-safe usr/bin/mysqld_safe
 usr/bin/mariadbd-safe-helper usr/bin/mysqld_safe_helper
 usr/bin/mariadb-hotcopy usr/bin/mysqlhotcopy
-usr/bin/mariadb-show usr/bin/mysqlshow
 
 usr/share/man/man1/mysqlhotcopy.1.gz usr/share/man/man1/mariadb-hotcopy.1.gz
 usr/share/man/man1/mysql_secure_installation.1.gz usr/share/man/man1/mariadb-secure-installation.1.gz
