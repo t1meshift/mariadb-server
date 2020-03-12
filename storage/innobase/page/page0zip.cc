@@ -4666,48 +4666,28 @@ page_zip_calc_checksum(
 innodb_checksum_algorithm */
 bool page_zip_verify_checksum(const void* data, ulint size)
 {
-	const uint32_t stored = mach_read_from_4(
-		static_cast<const byte*>(data) + FIL_PAGE_SPACE_OR_CHKSUM);
-
-	compile_time_assert(!(FIL_PAGE_LSN % 8));
-
-	/* Check if page is empty */
-	if (stored == 0
-	    && *reinterpret_cast<const ib_uint64_t*>(static_cast<const char*>(
-		data)
-		+ FIL_PAGE_LSN) == 0) {
-		/* make sure that the page is really empty */
-#ifdef UNIV_INNOCHECKSUM
-		ulint i;
-		for (i = 0; i < size; i++) {
-			if (*((const char*) data + i) != 0)
-				break;
-		}
-		if (i >= size) {
-			if (log_file) {
-			fprintf(log_file, "Page::%llu is empty and"
-					" uncorrupted\n", cur_page_num);
-			}
-
-			return(TRUE);
-		}
-#else
-		for (ulint i = 0; i < size; i++) {
-			if (*((const char*) data + i) != 0) {
-				return(FALSE);
-			}
-		}
-		/* Empty page */
-		return(TRUE);
-#endif /* UNIV_INNOCHECKSUM */
-	}
-
 	const srv_checksum_algorithm_t	curr_algo =
 		static_cast<srv_checksum_algorithm_t>(srv_checksum_algorithm);
 
 	if (curr_algo == SRV_CHECKSUM_ALGORITHM_NONE) {
 		return(TRUE);
 	}
+
+	if (std::all_of(static_cast<const byte*>(data),
+			static_cast<const byte*>(data) + size,
+			[](byte b) { return b == 0; })) {
+#ifdef UNIV_INNOCHECKSUM
+		if (log_file) {
+			fprintf(log_file,
+				"Page::%llu is empty and uncorrupted\n",
+				cur_page_num);
+		}
+#endif /* UNIV_INNOCHECKSUM */
+		return true;
+	}
+
+	const uint32_t stored = mach_read_from_4(
+		static_cast<const byte*>(data) + FIL_PAGE_SPACE_OR_CHKSUM);
 
 	uint32_t calc = page_zip_calc_checksum(data, size, curr_algo);
 
