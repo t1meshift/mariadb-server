@@ -653,6 +653,11 @@ whose old history can no longer be observed.
 @param[in,out]	mtr	mini-transaction (will be started and committed) */
 static void row_purge_reset_trx_id(purge_node_t* node, mtr_t* mtr)
 {
+	/* Skip TRX_UNDO_UNEMPTY record. */
+	if (node->rec_type == TRX_UNDO_UNEMPTY) {
+		return;
+	}
+
 	/* Reset DB_TRX_ID, DB_ROLL_PTR for old records. */
 	mtr->start();
 

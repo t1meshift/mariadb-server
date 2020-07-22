@@ -2245,6 +2245,11 @@ public:
 				already printed for this table ? */
 	/* @} */
 
+	/** Indicates whether the table is empty or not. The table is
+	considered empty if and only if it does not have any records,
+	not even marked as deleted. */
+	Atomic_relaxed<bool> is_empty;
+
 	/** AUTOINC related members. @{ */
 
 	/* The actual collection of tables locked during AUTOINC read/write is

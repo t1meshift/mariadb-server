@@ -7667,7 +7667,8 @@ ha_innobase::write_row(
 
 	trx_t*		trx = thd_to_trx(m_user_thd);
 
-	if (!dict_table_get_n_rows(m_prebuilt->table)) {
+	if (m_prebuilt->table->is_empty && !trx->duplicates) {
+		DBUG_PRINT("MDEV-515", ("bulk insert applicable"));
 		// bulk index code
 		m_prebuilt->table->bulk_trx_id = trx->id;
 	}

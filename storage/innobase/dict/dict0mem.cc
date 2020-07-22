@@ -1408,6 +1408,7 @@ void dict_table_t::empty_table()
      }
      mtr.commit();
   }
+  bulk_trx_id = 0;
 }
 
 void dict_table_t::assign_stat_n_rows()
@@ -1424,6 +1425,7 @@ void dict_table_t::assign_stat_n_rows()
   bool next_page= false;
 
   mtr.start();
+  is_empty= true;
   btr_pcur_open_at_index_side(true, clust_index, BTR_SEARCH_LEAF,
                               &pcur, true, 0, &mtr);
   btr_pcur_move_to_next_user_rec(&pcur, &mtr);
@@ -1441,6 +1443,7 @@ next_page:
     {
       mtr.commit();
       stat_n_rows= n_rows;
+      is_empty= is_empty && n_rows == 0;
       return;
     }
 
@@ -1459,7 +1462,10 @@ next_page:
   }
 
   rec= page_cur_get_rec(cur);
-  if (rec_get_deleted_flag(rec, dict_table_is_comp(this)));
+  if (rec_get_deleted_flag(rec, dict_table_is_comp(this)))
+  {
+    is_empty= false;
+  }
   else if (!page_rec_is_supremum(rec))
     n_rows++;
   else

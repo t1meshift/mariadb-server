@@ -661,6 +661,7 @@ btr_cur_instant_init(dict_table_t* table)
 	dberr_t	err = index
 		? btr_cur_instant_init_low(index, &mtr)
 		: DB_CORRUPTION;
+	table->is_empty = true;
 	mtr.commit();
 	return(err);
 }
@@ -5501,6 +5502,8 @@ btr_cur_optimistic_delete_func(
 			}
 			page_cur_set_after_last(block,
 						btr_cur_get_page_cur(cursor));
+
+			cursor->index->table->is_empty = true;
 			return true;
 		}
 	}
@@ -5732,6 +5735,7 @@ btr_cur_pessimistic_delete(
 					block,
 					btr_cur_get_page_cur(cursor));
 				ret = TRUE;
+				index->table->is_empty = true;
 				goto return_after_reservations;
 			}
 		}

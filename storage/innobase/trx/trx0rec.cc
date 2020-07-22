@@ -448,6 +448,7 @@ trx_undo_page_report_insert(
 	}
 
 done:
+	index->table->is_empty = false;
 	return(trx_undo_page_set_next_prev_and_add(undo_block, ptr, mtr));
 }
 
