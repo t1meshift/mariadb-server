@@ -1,0 +1,16 @@
+--source include/have_innodb.inc
+--source include/have_sequence.inc
+create table t1(f1 int not null primary key, f2 int not null,
+                f3 int not null, index(f2), index(f3))engine=innodb;
+select * from information_schema.innodb_sys_indexes;
+begin;
+insert into t1(f1, f2, f3) select *, 4, 3 from seq_1_to_16000;
+rollback;
+select * from t1;
+select count(*) from t1;
+select * from information_schema.innodb_sys_indexes;
+set global innodb_fast_shutdown = 0;  # Slow shutdown process all undo records
+--source include/restart_mysqld.inc
+select count(*) from t1;
+select * from information_schema.innodb_sys_indexes;
+drop table t1;

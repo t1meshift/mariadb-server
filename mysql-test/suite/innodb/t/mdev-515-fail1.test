@@ -1,0 +1,32 @@
+--source include/have_innodb.inc
+let $default=`select @@default_storage_engine`;
+set default_storage_engine=INNODB;
+
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+disable_query_log;
+select "--- Testing varchar ---";
+enable_query_log;
+
+#
+# Simple basic test that endspace is saved
+#
+#
+# Test unique keys
+#
+
+create table t1 (a char(10), unique (a));
+insert into t1 values ('a   ');
+--error ER_DUP_ENTRY
+insert into t1 values ('a ');
+
+--error ER_DUP_ENTRY
+insert into t1 values ('a '),('a  '),('a   '),('a         ');
+--error ER_DUP_ENTRY
+insert into t1 values ('a     '); # FAILURE
+--error ER_DUP_ENTRY
+insert into t1 values ('a          ');
+--error ER_DUP_ENTRY
+insert into t1 values ('a ');
